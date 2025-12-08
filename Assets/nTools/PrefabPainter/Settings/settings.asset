@@ -706,8 +706,8 @@ MonoBehaviour:
       - gameObject: {fileID: 0}
       - gameObject: {fileID: 0}
       - gameObject: {fileID: 0}
-      selectedSlot: 5
-      selected: 0
+      selectedSlot: 1
+      selected: 1
       colorTag: 0
       customPreviewImage: {fileID: 0}
     - name: LowLODTree
@@ -1022,7 +1022,7 @@ MonoBehaviour:
       - gameObject: {fileID: 0}
       - gameObject: {fileID: 0}
       selectedSlot: 0
-      selected: 1
+      selected: 0
       colorTag: 0
       customPreviewImage: {fileID: 0}
     - name: LowLODTree
