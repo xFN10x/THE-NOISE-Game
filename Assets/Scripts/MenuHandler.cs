@@ -1,6 +1,8 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,24 +25,83 @@ public class MenuHandler : MonoBehaviour
     private InputAction PointAction;
     private InputActionAsset Actions;
 
+    public TMP_Dropdown ResolutionSelector;
+    public TMP_Dropdown RefreshRateSelector;
+    public TMP_Dropdown FullscreenSelector;
+
+    private readonly SortedDictionary<string, FullScreenMode> FullscreenNames = new();
+
     private void Start()
     {
+        //add fullscreen modes
+        FullscreenNames.Add("Borderless Fullscreen", FullScreenMode.FullScreenWindow);
+        FullscreenNames.Add("Windowed", FullScreenMode.Windowed);
+        if (SystemInfo.operatingSystemFamily == OperatingSystemFamily.Windows)
+        {
+            FullscreenNames.Add("Fullscreen", FullScreenMode.ExclusiveFullScreen);
+        }
+
         Actions = GetComponent<PlayerInput>().actions;
         CurrentMenu = MakeActiveAfterLogos.gameObject;
         MakeActiveAfterLogos.gameObject.SetActive(false);
         MakeActiveAfterLogos.interactable = false;
         BGCoveringUIElement.gameObject.SetActive(true);
         PointAction = Actions.FindAction("Point");
+        SetupSettings();
 
         Actions.FindAction("SkipCutscene").performed += SkipIntro;
-
         MainSource.time = MusicStartMessure * 2;
         StartCoroutine(StartingLogos());
+
+    }
+
+    private string MakeResolutionString(Resolution res)
+    {
+        return $"{res.width}x{res.height}";
+    }
+
+    private string MakeRefreshRateString(Resolution res)
+    {
+        return $"{res.refreshRateRatio}hz";
+    }
+
+    public void ApplySettigs()
+    {
+        int width = Screen.resolutions[ResolutionSelector.value].width;
+        int height = Screen.resolutions[ResolutionSelector.value].height;
+        Screen.SetResolution(width, height, FullscreenNames.Values.ToArray()[FullscreenSelector.value], new RefreshRate
+        {
+            numerator = (uint)int.Parse(RefreshRateSelector.options[RefreshRateSelector.value].text),
+            denominator = 1u
+        });
+    }
+
+    public void SetupSettings()
+    {
+        List<string> resStrings = new();
+        List<string> refreshStrings = new();
+        foreach (Resolution res in Screen.resolutions)
+        {
+            print(res);
+            string propResString = MakeResolutionString(res);
+            if (!resStrings.Contains(propResString))
+                resStrings.Add(propResString);
+
+            string propRRString = MakeRefreshRateString(res);
+            if (!refreshStrings.Contains(propRRString))
+                refreshStrings.Add(propRRString);
+        }
+
+        ResolutionSelector.AddOptions(resStrings);
+        RefreshRateSelector.AddOptions(refreshStrings);
+        FullscreenSelector.AddOptions(FullscreenNames.Keys.ToList());
+
+        ResolutionSelector.value = resStrings.IndexOf(MakeResolutionString(Screen.currentResolution));
+        RefreshRateSelector.value = refreshStrings.IndexOf(MakeRefreshRateString(Screen.currentResolution));
     }
 
     private void SkipIntro(InputAction.CallbackContext obj)
     {
-
         MainSource.time = 24;
         if (!MainSource.isPlaying)
             MainSource.Play();
@@ -71,6 +132,20 @@ public class MenuHandler : MonoBehaviour
         CurrentMenu.SetActive(true);
         CurrentMenu.GetComponent<RectTransform>().rotation = Quaternion.Euler(new Vector3(0, 90, 0));
         yield return CurrentMenu.GetComponent<RectTransform>().DORotate(new Vector3(0, 0, 0), 0.5f).SetEase(Ease.Linear).WaitForCompletion();
+    }
+
+    private IEnumerator ExitCutscene()
+    {
+        MainSource.time = 200;
+        MakeActiveAfterLogos.DOFade(0, 3f);
+        yield return new WaitForSeconds(4);
+        BGCoveringUIElement.color = Color.black;
+        yield return new WaitForSeconds(4);
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
+        Application.Quit();
+#endif
     }
 
     private IEnumerator StartCutscene()
@@ -116,11 +191,8 @@ public class MenuHandler : MonoBehaviour
 
     public void Exit()
     {
-#if UNITY_EDITOR
-        EditorApplication.ExitPlaymode();
-#else   
-            Application.Quit();
-#endif
+        MakeActiveAfterLogos.interactable = false;
+        StartCoroutine(ExitCutscene());
     }
 
     public void Play()
