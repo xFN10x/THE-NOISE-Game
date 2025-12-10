@@ -69,9 +69,10 @@ public class MenuHandler : MonoBehaviour
     {
         int width = Screen.resolutions[ResolutionSelector.value].width;
         int height = Screen.resolutions[ResolutionSelector.value].height;
+        string hertzText = RefreshRateSelector.options[RefreshRateSelector.value].text;
         Screen.SetResolution(width, height, FullscreenNames.Values.ToArray()[FullscreenSelector.value], new RefreshRate
         {
-            numerator = (uint)int.Parse(RefreshRateSelector.options[RefreshRateSelector.value].text),
+            numerator = (uint)int.Parse(hertzText[..(hertzText.IndexOf("h") - 1)]),
             denominator = 1u
         });
     }
@@ -136,11 +137,10 @@ public class MenuHandler : MonoBehaviour
 
     private IEnumerator ExitCutscene()
     {
-        MainSource.time = 200;
+        MainSource.time = 208;
         MakeActiveAfterLogos.DOFade(0, 3f);
-        yield return new WaitForSeconds(4);
-        BGCoveringUIElement.color = Color.black;
-        yield return new WaitForSeconds(4);
+        BGCoveringUIElement.DOColor(Color.black, 3);
+        yield return new WaitForSeconds(8);
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
