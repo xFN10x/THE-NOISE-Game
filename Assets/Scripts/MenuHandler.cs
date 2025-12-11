@@ -28,7 +28,10 @@ public class MenuHandler : MonoBehaviour
     public TMP_Dropdown ResolutionSelector;
     public TMP_Dropdown RefreshRateSelector;
     public TMP_Dropdown FullscreenSelector;
+    public TMP_Dropdown QualitySelector;
     public TextMeshProUGUI DebugText = null;
+
+    public string[] QualityNames;
 
     private List<Resolution> SupportedResolutions = new List<Resolution>();
     private readonly SortedDictionary<string, FullScreenMode> FullscreenNames = new();
@@ -50,6 +53,12 @@ public class MenuHandler : MonoBehaviour
             {
                 DebugText.gameObject.SetActive(false);
             }
+        }
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            ResolutionSelector.interactable = false;
+            ResolutionSelector.interactable = false;
+            FullscreenSelector.interactable = false;
         }
         //add fullscreen modes
         FullscreenNames.Add("Borderless Fullscreen", FullScreenMode.FullScreenWindow);
@@ -85,18 +94,25 @@ public class MenuHandler : MonoBehaviour
 
     public void ApplySettigs()
     {
-        int width = SupportedResolutions[ResolutionSelector.value].width;
-        int height = SupportedResolutions[ResolutionSelector.value].height;
-        string hertzText = RefreshRateSelector.options[RefreshRateSelector.value].text;
-        string debugText = $"setting resolution to {width}x{height} @ {(uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))])}hz, at {FullscreenNames.Values.ToArray()[FullscreenSelector.value]}";
-        if (CanDebug())
-            DebugText.SetText(debugText);
-        print(debugText);
-        Screen.SetResolution(width, height, FullscreenNames.Values.ToArray()[FullscreenSelector.value], new RefreshRate
+        if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
-            numerator = (uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))]),
-            denominator = 1u
-        });
+            //set resolution settings
+            int width = SupportedResolutions[ResolutionSelector.value].width;
+
+            int height = SupportedResolutions[ResolutionSelector.value].height;
+            string hertzText = RefreshRateSelector.options[RefreshRateSelector.value].text;
+            string debugText = $"setting resolution to {width}x{height} @ {(uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))])}hz, at {FullscreenNames.Values.ToArray()[FullscreenSelector.value]}";
+            if (CanDebug())
+                DebugText.SetText(debugText);
+            print(debugText);
+            Screen.SetResolution(width, height, FullscreenNames.Values.ToArray()[FullscreenSelector.value], new RefreshRate
+            {
+                numerator = (uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))]),
+                denominator = 1u
+            });
+        }
+
+        QualitySettings.SetQualityLevel(QualitySelector.value);
     }
 
     public void SetupSettings()
@@ -121,9 +137,12 @@ public class MenuHandler : MonoBehaviour
         ResolutionSelector.AddOptions(resStrings);
         RefreshRateSelector.AddOptions(refreshStrings);
         FullscreenSelector.AddOptions(FullscreenNames.Keys.ToList());
+        QualitySelector.AddOptions(QualityNames.ToList());
 
         ResolutionSelector.value = resStrings.IndexOf(MakeResolutionString(Screen.currentResolution));
         RefreshRateSelector.value = refreshStrings.IndexOf(MakeRefreshRateString(Screen.currentResolution));
+        FullscreenSelector.value = FullscreenNames.Values.ToList().IndexOf(Screen.fullScreenMode);
+        QualitySelector.value = QualitySettings.GetQualityLevel();
     }
 
     private void SkipIntro(InputAction.CallbackContext obj)
@@ -151,12 +170,14 @@ public class MenuHandler : MonoBehaviour
 
     private IEnumerator SwitchMenu(GameObject menu)
     {
+        CurrentMenu.GetComponent<CanvasGroup>().interactable = false;
         yield return CurrentMenu.GetComponent<RectTransform>().DORotate(new Vector3(0, 90, 0), 0.5f).SetEase(Ease.Linear).WaitForCompletion();
         CurrentMenu.SetActive(false);
         CurrentMenu = menu;
         //now, current menu is the new one
         CurrentMenu.SetActive(true);
         CurrentMenu.GetComponent<RectTransform>().rotation = Quaternion.Euler(new Vector3(0, 90, 0));
+        CurrentMenu.GetComponent<CanvasGroup>().interactable = true;
         yield return CurrentMenu.GetComponent<RectTransform>().DORotate(new Vector3(0, 0, 0), 0.5f).SetEase(Ease.Linear).WaitForCompletion();
     }
 
