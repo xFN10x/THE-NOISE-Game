@@ -28,11 +28,29 @@ public class MenuHandler : MonoBehaviour
     public TMP_Dropdown ResolutionSelector;
     public TMP_Dropdown RefreshRateSelector;
     public TMP_Dropdown FullscreenSelector;
+    public TextMeshProUGUI DebugText = null;
 
+    private List<Resolution> SupportedResolutions = new List<Resolution>();
     private readonly SortedDictionary<string, FullScreenMode> FullscreenNames = new();
+
+    public bool CanDebug()
+    {
+        return Debug.isDebugBuild && DebugText != null;
+    }
 
     private void Start()
     {
+        if (DebugText != null)
+        {
+            if (Debug.isDebugBuild)
+            {
+                DebugText.gameObject.SetActive(true);
+            }
+            else
+            {
+                DebugText.gameObject.SetActive(false);
+            }
+        }
         //add fullscreen modes
         FullscreenNames.Add("Borderless Fullscreen", FullScreenMode.FullScreenWindow);
         FullscreenNames.Add("Windowed", FullScreenMode.Windowed);
@@ -67,12 +85,16 @@ public class MenuHandler : MonoBehaviour
 
     public void ApplySettigs()
     {
-        int width = Screen.resolutions[ResolutionSelector.value].width;
-        int height = Screen.resolutions[ResolutionSelector.value].height;
+        int width = SupportedResolutions[ResolutionSelector.value].width;
+        int height = SupportedResolutions[ResolutionSelector.value].height;
         string hertzText = RefreshRateSelector.options[RefreshRateSelector.value].text;
+        string debugText = $"setting resolution to {width}x{height} @ {(uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))])}hz, at {FullscreenNames.Values.ToArray()[FullscreenSelector.value]}";
+        if (CanDebug())
+            DebugText.SetText(debugText);
+        print(debugText);
         Screen.SetResolution(width, height, FullscreenNames.Values.ToArray()[FullscreenSelector.value], new RefreshRate
         {
-            numerator = (uint)int.Parse(hertzText[..(hertzText.IndexOf("h") - 1)]),
+            numerator = (uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))]),
             denominator = 1u
         });
     }
@@ -83,7 +105,10 @@ public class MenuHandler : MonoBehaviour
         List<string> refreshStrings = new();
         foreach (Resolution res in Screen.resolutions)
         {
-            print(res);
+            if ((res.width / res.height) != (16 / 9))
+                continue;
+
+            SupportedResolutions.Add(res);
             string propResString = MakeResolutionString(res);
             if (!resStrings.Contains(propResString))
                 resStrings.Add(propResString);
