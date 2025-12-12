@@ -29,7 +29,15 @@ public class MenuHandler : MonoBehaviour
     public TMP_Dropdown RefreshRateSelector;
     public TMP_Dropdown FullscreenSelector;
     public TMP_Dropdown QualitySelector;
+    public Slider VolumeSlider;
+    public Toggle FPSCounterEnabledToggle;
+    public TMP_Dropdown FPSCapSelector;
     public TextMeshProUGUI DebugText = null;
+
+    public FPSCounter FPSCounter;
+
+
+    public SpriteRenderer CreepyFace;
 
     public string[] QualityNames;
 
@@ -43,6 +51,7 @@ public class MenuHandler : MonoBehaviour
 
     private void Start()
     {
+        CreepyFace.enabled = false;
         if (DebugText != null)
         {
             if (Debug.isDebugBuild)
@@ -67,6 +76,10 @@ public class MenuHandler : MonoBehaviour
         {
             FullscreenNames.Add("Fullscreen", FullScreenMode.ExclusiveFullScreen);
         }
+        VolumeSlider.onValueChanged.AddListener((float val) =>
+        {
+            AudioListener.volume = val;
+        });
 
         Actions = GetComponent<PlayerInput>().actions;
         CurrentMenu = MakeActiveAfterLogos.gameObject;
@@ -185,8 +198,10 @@ public class MenuHandler : MonoBehaviour
     {
         MainSource.time = 208;
         MakeActiveAfterLogos.DOFade(0, 3f);
-        BGCoveringUIElement.DOColor(Color.black, 3);
-        yield return new WaitForSeconds(8);
+        BGCoveringUIElement.DOColor(Color.black, 9);
+        yield return new WaitForSeconds(4 + 3.5f);
+        CreepyFace.enabled = true;
+        yield return new WaitForSeconds(0.5f);
 #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
 #else
@@ -198,10 +213,12 @@ public class MenuHandler : MonoBehaviour
     {
         MainSource.time = 200;
         MakeActiveAfterLogos.DOFade(0, 3f);
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(3.5f);
+        CreepyFace.enabled = true;
+        yield return new WaitForSeconds(0.5f);
         BGCoveringUIElement.color = Color.black;
         DontDestroyOnLoad(MainSource.gameObject);
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(4f);
         SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
     }
 
