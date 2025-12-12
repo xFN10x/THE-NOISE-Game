@@ -165,7 +165,7 @@ public class MenuHandler : MonoBehaviour
         MainCamera.gameObject.transform.position = new Vector3(
             ((mousePos.x - (Screen.width / 2)) / Screen.width) / 10,
             ((mousePos.y - (Screen.height / 2)) / Screen.height) / 10 + 1.42f,
-            0);
+            -10);
     }
 
     private IEnumerator SwitchMenu(GameObject menu)
