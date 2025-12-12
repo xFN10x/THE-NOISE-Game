@@ -42,7 +42,7 @@ public class MenuHandler : MonoBehaviour
     public string[] QualityNames;
 
     private readonly List<string> FPSLimitList = new(new string[] { "30", "60", "90", "120", "144", "240", "360", "Unlimited" });
-    private readonly List<Resolution> SupportedResolutions = new();
+    private readonly SortedDictionary<string, Resolution> SupportedResolutions = new();
     private readonly SortedDictionary<string, FullScreenMode> FullscreenNames = new();
 
     public bool CanDebug()
@@ -115,9 +115,9 @@ public class MenuHandler : MonoBehaviour
         if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
             //set resolution settings
-            int width = SupportedResolutions[ResolutionSelector.value].width;
-
-            int height = SupportedResolutions[ResolutionSelector.value].height;
+            string resString = ResolutionSelector.options[ResolutionSelector.value].text;
+            int width = SupportedResolutions[resString].width;
+            int height = SupportedResolutions[resString].height;
             string hertzText = RefreshRateSelector.options[RefreshRateSelector.value].text;
             string debugText = $"setting resolution to {width}x{height} @ {(uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))])}hz, at {FullscreenNames.Values.ToArray()[FullscreenSelector.value]}";
             if (CanDebug())
@@ -149,14 +149,17 @@ public class MenuHandler : MonoBehaviour
             if ((res.width / res.height) != (16 / 9))
                 continue;
 
-            SupportedResolutions.Add(res);
             string propResString = MakeResolutionString(res);
             if (!resStrings.Contains(propResString))
+            {
+                SupportedResolutions.Add(propResString, res);
                 resStrings.Add(propResString);
+            }
 
             string propRRString = MakeRefreshRateString(res);
             if (!refreshStrings.Contains(propRRString))
                 refreshStrings.Add(propRRString);
+
         }
 
         ResolutionSelector.AddOptions(resStrings);
