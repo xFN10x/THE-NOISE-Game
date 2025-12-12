@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour
     public TextMeshProUGUI PrepareText;
 
     public GameObject OutsideTP;
-    private bool isOutside = false;
+    //private bool isOutside = false;
     private bool isPrepared = false;
     public Canvas MainCanvas;
     public Canvas OtherCanvas;
@@ -170,7 +170,7 @@ public class GameController : MonoBehaviour
         Player.ControlsEnabled = false;
         yield return FadePanel.DOFade(1f, 3f).WaitForCompletion();
         Player.transform.position = OutsideTP.transform.position;
-        isOutside = true;
+        //isOutside = true;
         Player.ControlsEnabled = true;
         yield return FadePanel.DOFade(0f, 3f).WaitForCompletion();
     }

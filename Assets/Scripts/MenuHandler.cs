@@ -41,7 +41,8 @@ public class MenuHandler : MonoBehaviour
 
     public string[] QualityNames;
 
-    private List<Resolution> SupportedResolutions = new List<Resolution>();
+    private readonly List<string> FPSLimitList = new(new string[] { "30", "60", "90", "120", "144", "240", "360", "Unlimited" });
+    private readonly List<Resolution> SupportedResolutions = new();
     private readonly SortedDictionary<string, FullScreenMode> FullscreenNames = new();
 
     public bool CanDebug()
@@ -76,7 +77,11 @@ public class MenuHandler : MonoBehaviour
         {
             FullscreenNames.Add("Fullscreen", FullScreenMode.ExclusiveFullScreen);
         }
-        VolumeSlider.onValueChanged.AddListener((float val) =>
+        FPSCounterEnabledToggle.onValueChanged.AddListener(val =>
+        {
+            FPSCounter.gameObject.SetActive(val);
+        });
+        VolumeSlider.onValueChanged.AddListener(val =>
         {
             AudioListener.volume = val;
         });
@@ -105,7 +110,7 @@ public class MenuHandler : MonoBehaviour
         return $"{res.refreshRateRatio}hz";
     }
 
-    public void ApplySettigs()
+    public void ApplySettings()
     {
         if (Application.platform != RuntimePlatform.WebGLPlayer)
         {
@@ -126,6 +131,13 @@ public class MenuHandler : MonoBehaviour
         }
 
         QualitySettings.SetQualityLevel(QualitySelector.value);
+
+        string maxFpsString = FPSCapSelector.options[FPSCapSelector.value].text;
+        Application.targetFrameRate = maxFpsString switch
+        {
+            "Unlimited" => -1,
+            _ => int.Parse(maxFpsString),
+        };
     }
 
     public void SetupSettings()
@@ -151,11 +163,15 @@ public class MenuHandler : MonoBehaviour
         RefreshRateSelector.AddOptions(refreshStrings);
         FullscreenSelector.AddOptions(FullscreenNames.Keys.ToList());
         QualitySelector.AddOptions(QualityNames.ToList());
+        FPSCapSelector.AddOptions(FPSLimitList);
 
         ResolutionSelector.value = resStrings.IndexOf(MakeResolutionString(Screen.currentResolution));
         RefreshRateSelector.value = refreshStrings.IndexOf(MakeRefreshRateString(Screen.currentResolution));
         FullscreenSelector.value = FullscreenNames.Values.ToList().IndexOf(Screen.fullScreenMode);
         QualitySelector.value = QualitySettings.GetQualityLevel();
+        FPSCapSelector.value = FPSLimitList.IndexOf("60");
+
+        ApplySettings();
     }
 
     private void SkipIntro(InputAction.CallbackContext obj)
