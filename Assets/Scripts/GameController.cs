@@ -224,7 +224,7 @@ public class GameController : MonoBehaviour
             DialougeText.text = text[..i];
         }
         yield return new WaitForSeconds(3);
-        if (DialougeText.text.Equals("text"))
+        if (DialougeText.text.Equals(text))
             for (float i = 1f; i > 0f; i -= 0.01f)
             {
                 yield return new WaitForEndOfFrame();
