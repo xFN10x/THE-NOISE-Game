@@ -33,6 +33,7 @@ public class MenuHandler : MonoBehaviour
     public Toggle FPSCounterEnabledToggle;
     public TMP_Dropdown FPSCapSelector;
     public TextMeshProUGUI DebugText = null;
+    public CanvasGroup WarningScreen;
 
     public FPSCounter FPSCounter;
 
@@ -270,7 +271,9 @@ public class MenuHandler : MonoBehaviour
 
     private IEnumerator StartingLogos()
     {
+        WarningScreen.gameObject.SetActive(true);
         yield return new WaitForSeconds(2);
+        WarningScreen.gameObject.SetActive(false);
         MainSource.Play();
         if (MusicStartMessure == 0)
             yield return new WaitForSeconds(4);
