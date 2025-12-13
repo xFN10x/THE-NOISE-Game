@@ -128,9 +128,14 @@ public class MenuHandler : MonoBehaviour
                 numerator = (uint)int.Parse(hertzText[..(hertzText.IndexOf("h"))]),
                 denominator = 1u
             });
+
+            PlayerPrefs.SetString("res", resString);
+            PlayerPrefs.SetString("rfr", hertzText);
+            PlayerPrefs.SetString("fsm", FullscreenNames.Keys.ToArray()[FullscreenSelector.value]);
         }
 
         QualitySettings.SetQualityLevel(QualitySelector.value);
+        PlayerPrefs.SetInt("quality", QualitySelector.value);
 
         string maxFpsString = FPSCapSelector.options[FPSCapSelector.value].text;
         Application.targetFrameRate = maxFpsString switch
@@ -138,6 +143,9 @@ public class MenuHandler : MonoBehaviour
             "Unlimited" => -1,
             _ => int.Parse(maxFpsString),
         };
+        PlayerPrefs.SetString("fps", maxFpsString);
+
+        PlayerPrefs.Save();
     }
 
     public void SetupSettings()
@@ -168,11 +176,30 @@ public class MenuHandler : MonoBehaviour
         QualitySelector.AddOptions(QualityNames.ToList());
         FPSCapSelector.AddOptions(FPSLimitList);
 
-        ResolutionSelector.value = resStrings.IndexOf(MakeResolutionString(Screen.currentResolution));
-        RefreshRateSelector.value = refreshStrings.IndexOf(MakeRefreshRateString(Screen.currentResolution));
-        FullscreenSelector.value = FullscreenNames.Values.ToList().IndexOf(Screen.fullScreenMode);
-        QualitySelector.value = QualitySettings.GetQualityLevel();
-        FPSCapSelector.value = FPSLimitList.IndexOf("60");
+        if (PlayerPrefs.HasKey("res")) // res is the resolution string. e.g. "1920x1080"
+            ResolutionSelector.value = resStrings.IndexOf(PlayerPrefs.GetString("res"));
+        else
+            ResolutionSelector.value = resStrings.IndexOf(MakeResolutionString(Screen.currentResolution));
+
+        if (PlayerPrefs.HasKey("rfr")) // rfr is the refresh rate string. e.g. "60hz"
+            RefreshRateSelector.value = refreshStrings.IndexOf(PlayerPrefs.GetString("rfr"));
+        else
+            RefreshRateSelector.value = refreshStrings.IndexOf(MakeRefreshRateString(Screen.currentResolution));
+
+        if (PlayerPrefs.HasKey("fsm")) // fsm is the fullscreen name.
+            FullscreenSelector.value = FullscreenNames.Keys.ToList().IndexOf(PlayerPrefs.GetString("fsm"));
+        else
+            FullscreenSelector.value = FullscreenNames.Values.ToList().IndexOf(Screen.fullScreenMode);
+
+        if (PlayerPrefs.HasKey("quality")) // quality is the quality index. e.g. 2 (medium)
+            QualitySelector.value = PlayerPrefs.GetInt("quality");
+        else
+            QualitySelector.value = QualitySettings.GetQualityLevel();
+
+        if (PlayerPrefs.HasKey("fps")) // fps is the fps string. e.g. "60"
+            FPSCapSelector.value = FPSLimitList.IndexOf(PlayerPrefs.GetString("fps"));
+        else
+            FPSCapSelector.value = FPSLimitList.IndexOf("60");
 
         ApplySettings();
     }
