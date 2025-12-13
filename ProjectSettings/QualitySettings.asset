@@ -37,12 +37,12 @@ QualitySettings:
     meshLodThreshold: 16
     maximumLODLevel: 0
     enableLODCrossFade: 0
-    streamingMipmapsActive: 0
+    streamingMipmapsActive: 1
     streamingMipmapsAddAllCameras: 1
-    streamingMipmapsMemoryBudget: 512
-    streamingMipmapsRenderersPerFrame: 512
-    streamingMipmapsMaxLevelReduction: 2
-    streamingMipmapsMaxFileIORequests: 1024
+    streamingMipmapsMemoryBudget: 256
+    streamingMipmapsRenderersPerFrame: 256
+    streamingMipmapsMaxLevelReduction: 4
+    streamingMipmapsMaxFileIORequests: 512
     particleRaycastBudget: 128
     asyncUploadTimeSlice: 2
     asyncUploadBufferSize: 16
@@ -92,12 +92,12 @@ QualitySettings:
     meshLodThreshold: 14.02
     maximumLODLevel: 0
     enableLODCrossFade: 1
-    streamingMipmapsActive: 0
+    streamingMipmapsActive: 1
     streamingMipmapsAddAllCameras: 1
     streamingMipmapsMemoryBudget: 512
-    streamingMipmapsRenderersPerFrame: 512
+    streamingMipmapsRenderersPerFrame: 256
     streamingMipmapsMaxLevelReduction: 2
-    streamingMipmapsMaxFileIORequests: 1024
+    streamingMipmapsMaxFileIORequests: 512
     particleRaycastBudget: 256
     asyncUploadTimeSlice: 2
     asyncUploadBufferSize: 16
@@ -145,7 +145,7 @@ QualitySettings:
     meshLodThreshold: 10
     maximumLODLevel: 0
     enableLODCrossFade: 1
-    streamingMipmapsActive: 0
+    streamingMipmapsActive: 1
     streamingMipmapsAddAllCameras: 1
     streamingMipmapsMemoryBudget: 512
     streamingMipmapsRenderersPerFrame: 512
@@ -188,7 +188,7 @@ QualitySettings:
     antiAliasing: 2
     softParticles: 0
     softVegetation: 1
-    realtimeReflectionProbes: 0
+    realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 1
     useLegacyDetailDistribution: 1
     adaptiveVsync: 0
@@ -243,7 +243,7 @@ QualitySettings:
     antiAliasing: 8
     softParticles: 0
     softVegetation: 1
-    realtimeReflectionProbes: 0
+    realtimeReflectionProbes: 1
     billboardsFaceCameraPosition: 1
     useLegacyDetailDistribution: 1
     adaptiveVsync: 0
