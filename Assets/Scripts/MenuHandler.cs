@@ -35,8 +35,9 @@ public class MenuHandler : MonoBehaviour
     public TextMeshProUGUI DebugText = null;
     public CanvasGroup WarningScreen;
 
-    public FPSCounter FPSCounter;
+    public Button ExitButton;
 
+    public FPSCounter FPSCounter;
 
     public SpriteRenderer CreepyFace;
 
@@ -59,6 +60,7 @@ public class MenuHandler : MonoBehaviour
             if (Debug.isDebugBuild)
             {
                 DebugText.gameObject.SetActive(true);
+                DebugText.SetText(Application.platform.ToString());
             }
             else
             {
@@ -67,7 +69,8 @@ public class MenuHandler : MonoBehaviour
         }
         if (Application.platform == RuntimePlatform.WebGLPlayer)
         {
-            ResolutionSelector.interactable = false;
+            ExitButton.interactable = false;
+            RefreshRateSelector.interactable = false;
             ResolutionSelector.interactable = false;
             FullscreenSelector.interactable = false;
         }
